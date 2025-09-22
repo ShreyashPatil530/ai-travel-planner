@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Travel Planner</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            padding: 30px;
+            max-width: 1200px;
+        }
+        
+        .hero-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .hero-section h1 {
+            color: #2c3e50;
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .hero-section p {
+            color: #7f8c8d;
+            font-size: 1.2rem;
+        }
+        
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-success {
+            background: linear-gradient(45deg, #11998e, #38ef7d);
+            border: none;
+            padding: 10px 25px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .location-status {
+            background: #e8f5e8;
+            border: 1px solid #28a745;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .location-status.error {
+            background: #ffe6e6;
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+        
+        .itinerary-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+        }
+        
+        .day-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .day-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        .day-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .day-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .activity-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            color: #333;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .activity-time {
+            background: #007bff;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        
+        .activity-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        .activity-location {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .recommendations-section {
+            margin-top: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 15px;
+        }
+        
+        .recommendation-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            color: #667eea;
+        }
+        
+        .tips-section {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .tip-item {
+            background: white;
+            border-radius: 8px;
+            padding: 12px 18px;
+            margin-bottom: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .download-section {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+        }
+        
+        .btn-download {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            color: white;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+            
+            .main-container {
+                margin: 10px;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container">
+            <!-- Hero Section -->
+            <div class="hero-section">
+                <h1><i class="fas fa-plane"></i> AI Travel Planner</h1>
+                <p>Discover amazing destinations with AI-powered personalized itineraries</p>
+            </div>
+            
+            <!-- Travel Planning Form -->
+            <div class="form-container">
+                <h3 class="mb-4"><i class="fas fa-map-marked-alt"></i> Plan Your Adventure</h3>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Number of Days</label>
+                            <select class="form-select" id="days" required>
+                                <option value="">Select duration</option>
+                                <option value="1">1 Day</option>
+                                <option value="2">2 Days</option>
+                                <option value="3">3 Days</option>
+                                <option value="4">4 Days</option>
+                                <option value="5">5 Days</option>
+                                <option value="6">6 Days</option>
+                                <option value="7">7 Days</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Your Interests</label>
+                            <input type="text" class="form-control" id="interests" 
+                                   placeholder="e.g., history, food, adventure, culture, nature" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button class="btn btn-success me-3" onclick="detectLocation()">
+                        <i class="fas fa-location-arrow"></i> Detect My Location
+                    </button>
+                    <button class="btn btn-primary" onclick="generateItinerary()" id="generateBtn">
+                        <i class="fas fa-magic"></i> Generate Itinerary
+                    </button>
+                </div>
+                
+                <div id="locationStatus" class="location-status" style="display: none;">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span id="locationText"></span>
+                </div>
+            </div>
+            
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h5 class="mt-3">Creating your perfect itinerary...</h5>
+                <p>This may take a moment while our AI plans your adventure</p>
+            </div>
+            
+            <!-- Itinerary Display -->
+            <div id="itineraryContainer" class="itinerary-container" style="display: none;">
+                <div class="text-center mb-4">
+                    <h2 id="itineraryTitle" class="text-primary">
+                        <i class="fas fa-route"></i> Your Personalized Itinerary
+                    </h2>
+                    <p id="itineraryOverview" class="text-muted fs-5"></p>
+                </div>
+                
+                <div id="dailyItinerary"></div>
+                
+                <!-- Recommendations Section -->
+                <div class="recommendations-section">
+                    <h3 class="text-center mb-4"><i class="fas fa-star"></i> Our Recommendations</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-bed"></i> Hotels</h5>
+                            <div id="hotelRecommendations"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-utensils"></i> Restaurants</h5>
+                            <div id="restaurantRecommendations"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Travel Tips Section -->
+                <div class="tips-section">
+                    <h3 class="text-center mb-3"><i class="fas fa-lightbulb"></i> Travel Tips</h3>
+                    <div id="travelTips"></div>
+                </div>
+                
+                <!-- Download Section -->
+                <div class="download-section">
+                    <a href="#" class="btn-download" onclick="downloadPDF()">
+                        <i class="fas fa-download"></i> Download PDF
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <script>
+        let currentLocation = null;
+        let currentItinerary = null;
+        
+        function detectLocation() {
+            if (navigator.geolocation) {
+                const locationStatus = document.getElementById('locationStatus');
+                const locationText = document.getElementById('locationText');
+                
+                locationStatus.style.display = 'block';
+                locationStatus.classList.remove('error');
+                locationText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Detecting your location...';
+                
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        currentLocation = {
+                            lat: position.coords.latitude,
+                            lon: position.coords.longitude
+                        };
+                        
+                        locationText.innerHTML = `<i class="fas fa-check-circle"></i> Location detected successfully! Lat: ${currentLocation.lat.toFixed(4)}, Lon: ${currentLocation.lon.toFixed(4)}`;
+                    },
+                    function(error) {
+                        locationStatus.classList.add('error');
+                        locationText.innerHTML = '<i class="fas fa-exclamation-circle"></i> Location detection failed. Please enable location services.';
+                        currentLocation = null;
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 300000
+                    }
+                );
+            } else {
+                alert('Geolocation is not supported by this browser.');
+            }
+        }
+        
+        async function generateItinerary() {
+            const days = document.getElementById('days').value;
+            const interests = document.getElementById('interests').value;
+            
+            if (!days || !interests) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            if (!currentLocation) {
+                alert('Please detect your location first');
+                return;
+            }
+            
+            // Show loading spinner
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('itineraryContainer').style.display = 'none';
+            document.getElementById('generateBtn').disabled = true;
+            
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        lat: currentLocation.lat,
+                        lon: currentLocation.lon,
+                        days: parseInt(days),
+                        interests: interests
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentItinerary = data.itinerary;
+                    displayItinerary(data.itinerary);
+                } else {
+                    throw new Error(data.error || 'Failed to generate itinerary');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to generate itinerary. Please try again.');
+            } finally {
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('generateBtn').disabled = false;
+            }
+        }
+        
+        function displayItinerary(itinerary) {
+            // Update title and overview
+            document.getElementById('itineraryTitle').innerHTML = 
+                `<i class="fas fa-route"></i> ${itinerary.total_days}-Day Adventure in ${itinerary.city}`;
+            document.getElementById('itineraryOverview').textContent = itinerary.overview;
+            
+            // Display daily itinerary
+            const dailyContainer = document.getElementById('dailyItinerary');
+            dailyContainer.innerHTML = '';
+            
+            itinerary.daily_itinerary.forEach(day => {
+                const dayCard = document.createElement('div');
+                dayCard.className = 'day-card';
+                dayCard.innerHTML = `
+                    <div class="day-header">
+                        <div class="day-number">Day ${day.day}</div>
+                        <h4>${day.theme}</h4>
+                    </div>
+                    
+                    <div class="activity-card">
+                        <div class="activity-time"><i class="fas fa-sun"></i> ${day.morning.time}</div>
+                        <div class="activity-title">${day.morning.activity}</div>
+                        <div class="activity-location"><i class="fas fa-map-marker-alt"></i> ${day.morning.location}</div>
+                        <p>${day.morning.description}</p>
+                    </div>
+                    
+                    <div class="activity-card">
+                        <div class="activity-time"><i class="fas fa-cloud-sun"></i> ${day.afternoon.time}</div>
+                        <div class="activity-title">${day.afternoon.activity}</div>
+                        <div class="activity-location"><i class="fas fa-map-marker-alt"></i> ${day.afternoon.location}</div>
+                        <p>${day.afternoon.description}</p>
+                    </div>
+                    
+                    <div class="activity-card">
+                        <div class="activity-time"><i class="fas fa-moon"></i> ${day.evening.time}</div>
+                        <div class="activity-title">${day.evening.activity}</div>
+                        <div class="activity-location"><i class="fas fa-map-marker-alt"></i> ${day.evening.location}</div>
+                        <p>${day.evening.description}</p>
+                    </div>
+                `;
+                dailyContainer.appendChild(dayCard);
+            });
+            
+            // Display hotel recommendations
+            const hotelContainer = document.getElementById('hotelRecommendations');
+            hotelContainer.innerHTML = '';
+            itinerary.recommended_hotels.forEach(hotel => {
+                const hotelCard = document.createElement('div');
+                hotelCard.className = 'recommendation-card';
+                hotelCard.innerHTML = `
+                    <h6><i class="fas fa-bed"></i> ${hotel.name}</h6>
+                    <p><i class="fas fa-map-marker-alt"></i> ${hotel.area}</p>
+                    <span class="badge bg-primary">${hotel.price_range}</span>
+                `;
+                hotelContainer.appendChild(hotelCard);
+            });
+            
+            // Display restaurant recommendations
+            const restaurantContainer = document.getElementById('restaurantRecommendations');
+            restaurantContainer.innerHTML = '';
+            itinerary.recommended_restaurants.forEach(restaurant => {
+                const restaurantCard = document.createElement('div');
+                restaurantCard.className = 'recommendation-card';
+                restaurantCard.innerHTML = `
+                    <h6><i class="fas fa-utensils"></i> ${restaurant.name}</h6>
+                    <p><i class="fas fa-map-marker-alt"></i> ${restaurant.area}</p>
+                    <span class="badge bg-success">${restaurant.cuisine}</span>
+                `;
+                restaurantContainer.appendChild(restaurantCard);
+            });
+            
+            // Display travel tips
+            const tipsContainer = document.getElementById('travelTips');
+            tipsContainer.innerHTML = '';
+            itinerary.travel_tips.forEach(tip => {
+                const tipItem = document.createElement('div');
+                tipItem.className = 'tip-item';
+                tipItem.innerHTML = `<i class="fas fa-check-circle text-success"></i> ${tip}`;
+                tipsContainer.appendChild(tipItem);
+            });
+            
+            // Show itinerary container
+            document.getElementById('itineraryContainer').style.display = 'block';
+            
+            // Scroll to itinerary
+            document.getElementById('itineraryContainer').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+        
+        function downloadPDF() {
+            if (!currentItinerary) {
+                alert('No itinerary to download');
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Title
+            doc.setFontSize(20);
+            doc.setTextColor(40, 40, 40);
+            doc.text(`${currentItinerary.total_days}-Day Travel Itinerary`, 20, 30);
+            doc.text(`${currentItinerary.city}`, 20, 45);
+            
+            // Overview
+            doc.setFontSize(12);
+            doc.setTextColor(100, 100, 100);
+            const splitOverview = doc.splitTextToSize(currentItinerary.overview, 170);
+            doc.text(splitOverview, 20, 60);
+            
+            let yPosition = 80;
+            
+            // Daily itinerary
+            currentItinerary.daily_itinerary.forEach(day => {
+                if (yPosition > 250) {
+                    doc.addPage();
+                    yPosition = 30;
+                }
+                
+                doc.setFontSize(14);
+                doc.setTextColor(40, 40, 40);
+                doc.text(`Day ${day.day}: ${day.theme}`, 20, yPosition);
+                yPosition += 15;
+                
+                // Morning
+                doc.setFontSize(10);
+                doc.setTextColor(60, 60, 60);
+                doc.text(`Morning (${day.morning.time}): ${day.morning.activity}`, 25, yPosition);
+                yPosition += 8;
+                const morningDesc = doc.splitTextToSize(day.morning.description, 160);
+                doc.text(morningDesc, 30, yPosition);
+                yPosition += morningDesc.length * 5 + 5;
+                
+                // Afternoon
+                doc.text(`Afternoon (${day.afternoon.time}): ${day.afternoon.activity}`, 25, yPosition);
+                yPosition += 8;
+                const afternoonDesc = doc.splitTextToSize(day.afternoon.description, 160);
+                doc.text(afternoonDesc, 30, yPosition);
+                yPosition += afternoonDesc.length * 5 + 5;
+                
+                // Evening
+                doc.text(`Evening (${day.evening.time}): ${day.evening.activity}`, 25, yPosition);
+                yPosition += 8;
+                const eveningDesc = doc.splitTextToSize(day.evening.description, 160);
+                doc.text(eveningDesc, 30, yPosition);
+                yPosition += eveningDesc.length * 5 + 10;
+            });
+            
+            // Save PDF
+            doc.save(`${currentItinerary.city}-${currentItinerary.total_days}day-itinerary.pdf`);
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('AI Travel Planner loaded successfully!');
+        });
+    </script>
+</body>
+</html>
